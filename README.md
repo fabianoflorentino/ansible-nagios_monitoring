@@ -1,9 +1,6 @@
-# **2com Monitoramento**<br/>
-#### **Implantação do monitoramento com ansible.**<br/>
+#### **Monitoramento Nagios instalação e configuração com Ansible.**<br/>
 
 # **Descrição**<br/>
-**Auto:** 2com Consulting (Time de monitoramento)<br/>
-**Manutenção**: Time de monitoramento.<br/>
 **Licença**: GPL (https://pt.wikipedia.org/wiki/GNU_General_Public_License)<br/>
 
 Sistema de automação com Ansible para realizar implementação do sistema de<br/>
