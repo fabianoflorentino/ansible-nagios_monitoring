@@ -1,0 +1,8 @@
+---
+# tasks file for omd
+
+- include: omd.yml
+- include: site_monitor.yml
+- include: nagios_config.yml
+- include: 2com_template.yml
+- include: config_user.yml

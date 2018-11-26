@@ -1,0 +1,8 @@
+---
+
+- name: Freetds Conf
+  template:
+    backup: yes
+    src: freetds.conf.j2
+    dest: /usr/local/etc/freetds.conf
+  when: (mssql_sns == "true") or (multi_banco == "true")

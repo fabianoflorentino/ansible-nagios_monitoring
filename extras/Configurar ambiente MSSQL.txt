@@ -1,0 +1,101 @@
+Configurar ambiente MSSQL
+
+Baixar os pacotes do monitor omd_install.tar.z (/tmp/omd_install.tar.z)
+descompactar a pasta omd_install.tar.z e acessar /omd_install/omd_mssql/
+baixe os pacotes em /usr/local (cp -vp check_mssql_health-1.5.19.3.tar.gz DBD-Sybase-1.15.tar.gz freetds-stable.tgz /usr/local/)
+exporte as variaveis no root e dentro do profile do site de monitoramento
+export LD_LIBRARY_PATH=/usr/local/freetds:/usr/local/freetds/lib
+export SYBASE=/usr/local/freetds   #### aonde fica o lib do sysbase
+antes de iniciar compilação verifique se o compilador gcc esta instalado.
+descompacte o freetds.0.91 renomei para freetds e instale.
+
+cd freedtds ./configure && make && make install
+************************************************
+se apresentar o seguinte erro:
+configure: error: in `/usr/local/freetds':
+configure: error: no acceptable C compiler found in $PATH
+See `config.log' for more details.
+ 
+Instalar o pacote gcc:
+yum install gcc -y
+
+*************************************************
+exporte as variaveis no root 
+export LD_LIBRARY_PATH=/usr/local/freetds:/usr/local/freetds/lib
+export SYBASE=/usr/local/freetds   #### aonde fica o lib do sysbase
+
+va para /usr/local
+cp -vr lib/ lib64 freetds/
+yum install perl-CPAN
+descompacte o arquivo DBD-Sybase-1.15.tar.gz e instale
+perl Makefile.PL
+make
+make install
+depois acesse o site su - sau e coloque em .profile as variaveis LD_LIBRARY_PATH e SYBASE
+depois va em /usr/local/etc/ e adcione no arquivo freetds.conf 
+
+[mssql]
+        host = 192.168.0.10
+        port = 1433
+        tds version = 7.0
+
+ir dento de /root/omd_install/martins e copiar check_mssql_health para dentro da pasta de plugins:
+cp -v /root/omd_install/martins/check_mssql_health /omd/sites/tcc/local/lib/nagios/plugins/
+
+
+# VERIFICAR PORTA DO BANCO MSSQL FORA DO PADRÃO (PROCEDURE VIA MANANGEMENT STUDIO) TENTAR UMA SE NÃO DER CERTO TENTA A OUTRA
+
+# 1
+
+SELECT value_data
+FROM sys.dm_server_registry
+WHERE registry_key LIKE '%IPALL%' 
+AND value_name LIKE 'Tcp%Port%'
+AND NULLIF(value_data, '') IS NOT NULL
+
+#2
+
+SELECT TOP 1 local_tcp_port 
+FROM sys.dm_exec_connections
+WHERE local_tcp_port IS NOT NULL
+
+Nota: para SQL SERVER Express é necessário habilitar a comunicação e rede:
+sql server configuration manager - protocolo para mssqlserver - tcpip habitar 
+
+#TESTE
+/omd/sites/cit/local/lib/nagios/plugins/check_mssql_health --server mssql --username 2com --password summer098* --mode connected-users -warning 450 -critical 500
+
+
+/omd/sites/idb/local/lib/nagios/plugins/check_mssql_health --server mssql --username 2com --password summer098* --mode connected-users  -warning 450 -critical 500
+
+
+
+
+
+define command{
+        command_name    check_tablespace_sigaofc
+        command_line    /opt/omd/sites/mso/local/lib/nagios/plugins/list_tablespace_sigaofc.sh
+       }
+
+define command{
+        command_name    check_tablespace_sigatss
+        command_line    /opt/omd/sites/mso/local/lib/nagios/plugins/list_tablespace_sigatss.sh
+       }
+
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       mso-dbprimario
+        service_description             Mssql - Tablespace_DB_Sigaofc
+        check_command                   check_tablespace_sigaofc
+        check_interval                  60
+        notifications_enabled           0
+        }
+
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       mso-dbprimario
+        service_description             Mssql - Tablespace_DB_Sigatss
+        check_command                   check_tablespace_sigatss
+        check_interval                  60
+        notifications_enabled           0
+        }

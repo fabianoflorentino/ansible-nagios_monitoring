@@ -1,0 +1,17 @@
+#!/bin/bash
+
+OS_ID=$(cat /etc/os-release |egrep "^VERSION_")
+OS_VERSION=$(echo ${OS_ID} |cut -d"\"" -f2 |cut -d"." -f1)
+
+EPEL_URL="https://dl.fedoraproject.org/pub/epel"
+EPEL_RPM="epel-release-latest-${OS_VERSION}.noarch.rpm"
+
+IF_TRUE=$(rpm -a -q |egrep "^ansible-" > /dev/null && echo -e "true")
+
+YUM_INSTALL="yum install -y"
+YUM_REMOVE="yum remove -y"
+
+LOG="/tmp/ansible.out"
+
+CP="/bin/cp"
+CP_OPT="-rfv"

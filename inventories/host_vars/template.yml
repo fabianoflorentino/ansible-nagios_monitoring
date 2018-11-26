@@ -1,0 +1,87 @@
+---
+# <INFO>
+#   ^^^ -> Informações do cliente
+
+# Cliente
+nome_cliente: "<NOME DO CLIENTE>"
+site_name: "<SITE DO CLIENTE>"
+ip_dbe: "<IP BANCO DE DADOS>"
+
+hostname_main:
+  - "{{site_name}}-dbprimario"
+
+host_info:
+  - "'{{site_name}}-dbprimario' : '{{ip_dbe}}'"
+
+
+# Sensores de monitoramento
+oracle_sns: "true"
+mssql_sns: "false"
+pssql_sns: "false"
+db2_sns: "false"
+multi_banco: "false"
+
+
+# Configuração Oracle Database
+oracle_ip: "{{ip_dbe}}"
+oracle_asm: "false"
+oracle_flash: "true"
+oracle_bse: "/u01/app/oracle/product"
+oracle_ver: "11.2.0.4"
+oracle_srv: "WINT"
+oracle_app: "dbhome_1"
+oracle_hst: "{{ip_dbe}}"
+oracle_dbe: 
+  - WINT
+oracle_rem:
+  - WINT
+
+# Configuração Oracle Cliente
+oracle_client_drv: "true"
+oracle_client_bse: "/u01/app/oracle/product"
+oracle_client_ver: "11.2.0.4"
+oracle_client_srv: "WINT"
+oracle_client_app: "dbhome_1"
+
+
+# Configuração PostgreSQL
+pssql_dbe:
+  - PostgreSQL
+
+
+# Configuração SQL Server
+mssql_ip: "{{ip_dbe}}"
+mssql_port: "<PORTA MSSQL>"
+mssql_dbe:
+  - sigatss
+  - sigaofc
+mssql_rem:
+  - sigatss
+  - sigaofc
+
+
+# Configuração IBM DB2
+db2_client_driver: "true"
+db2_version: "v11.1"
+
+
+# Tipo de Sensor
+multi_base: "false"
+
+
+# Backup Nuvem
+plugin_bkp_nuvem: "false"
+
+
+# Backup Banco
+plugin_bkp_banco: "false"
+plugin_bkp_banco_size: ""
+plugin_bkp_banco_dir: "/db/backup/backup_old"
+plugin_bkp_banco_dir_red: "/mnt/backup_check"
+
+
+# Winthor
+plugin_winthor: "false"
+plugin_winthor_size_bkp: ""
+plugin_winthor_bkp_dir: "/db/backup/backup_old"
+plugin_winthor_bkp_dir_red: "/mnt/backup_check"

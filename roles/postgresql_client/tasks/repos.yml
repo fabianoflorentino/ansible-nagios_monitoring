@@ -1,0 +1,22 @@
+---
+
+# Oracle Linux 7
+- name: Repositorio PostgreSQL 9.6 (OL7)
+  yum:
+    name: "https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-oraclelinux96-9.6-3.noarch.rpm"
+    state: present
+  when: (ansible_distribution == "OracleLinux") 
+        and (ansible_distribution_major_version == "7")
+        and (pssql_sns == "true")
+  tags: postgresql_repo
+
+
+# Oracle Linux 6
+- name: Repositorio PostgreSQL 9.6 (OL6)
+  yum:
+    name: "https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-6-x86_64/pgdg-oraclelinux96-9.6-3.noarch.rpm"
+    state: present
+  when: (ansible_distribution == "OracleLinux") 
+        and (ansible_distribution_major_version == "6")
+        and (pssql_sns == "true")
+  tags: postgresql_repo

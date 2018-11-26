@@ -1,0 +1,195 @@
+---
+
+# check_backup_compress
+- name: Sensor -  check_backup_compress
+  vars:
+    type_plugin: "{{multi_base}}"
+  template:
+    src: "check_backup_compress.sh.j2"
+    dest: "{{check_mk_dir}}/check_backup_compress_{{item}}.sh"
+    mode: 0744
+  with_items: "{{oracle_dbe}}"
+  when: (plugin_bkp_banco == "true")
+  notify: Reload CMK
+  tags:
+    - sensores_install
+
+
+# check_backup_export
+- name: Sensor -  check_backup_export
+  vars:
+    type_plugin: "{{multi_base}}"
+  template:
+    src: "check_backup_export.sh.j2"
+    dest: "{{check_mk_dir}}/check_backup_export_{{item}}.sh"
+    mode: 0744
+  with_items: "{{oracle_dbe}}"
+  when: (plugin_bkp_banco == "true")
+  notify: Reload CMK
+  tags:
+    - sensores_install
+
+
+# check_rman_agent_archive
+- name: Sensor -  check_rman_agent_archive
+  vars:
+    type_plugin: "{{multi_base}}"
+  template:
+    src: "check_rman_agent_archive.sh.j2"
+    dest: "{{check_mk_dir}}/check_rman_agent_archive_{{item}}.sh"
+    mode: 0744
+  with_items: "{{oracle_dbe}}"
+  when: (plugin_bkp_banco == "true")
+  notify: Reload CMK
+  tags:
+    - sensores_install
+
+# check_rman_agent_full
+- name: Sensor -  check_rman_agent_full
+  vars:
+    type_plugin: "{{multi_base}}"
+  template:
+    src: "check_rman_agent_full.sh.j2"
+    dest: "{{check_mk_dir}}/check_rman_agent_full_{{item}}.sh"
+    mode: 0744
+  with_items: "{{oracle_dbe}}"
+  when: (plugin_bkp_banco == "true")
+  notify: Reload CMK
+  tags:
+    - sensores_install
+
+
+# check_list_backup_local_banco
+- name: Sensor -  check_list_backup_local_banco
+  vars:
+    type_plugin: "{{multi_base}}"
+  template:
+    src: "check_list_backup_local.sh.j2"
+    dest: "{{check_mk_dir}}/check_list_backup_local_banco_{{item}}.sh"
+    mode: 0744
+  with_items: "{{oracle_dbe}}"
+  when: (plugin_bkp_banco == "true")
+  notify: Reload CMK
+  tags:
+    - sensores_install
+
+
+# check_list_backup_red_banco
+- name: Sensor -  check_list_backup_red_banco
+  vars:
+    type_plugin: "{{multi_base}}"
+  template:
+    src: "check_list_backup_red_banco.sh.j2"
+    dest: "{{check_mk_dir}}/check_list_backup_red_banco_{{item}}.sh"
+    mode: 0744
+  with_items: "{{oracle_dbe}}"
+  when: (plugin_bkp_banco == "true")
+  notify: Reload CMK
+  tags:
+    - sensores_install
+
+
+# check_size_backup_banco
+- name: Sensor -  check_size_backup_banco
+  vars:
+    type_plugin: "{{multi_base}}"
+  template:
+    src: "check_size_backup_banco.sh.j2"
+    dest: "{{check_mk_dir}}/check_size_backup_banco_{{item}}.sh"
+    mode: 0744
+  with_items: "{{oracle_dbe}}"
+  when: (plugin_bkp_banco == "true")
+  notify: Reload CMK
+  tags:
+    - sensores_install
+
+
+# check_integrity_red_local
+- name: Sensor - check_integrity_red_local
+  vars:
+    type_plugin: "{{multi_base}}"
+  template:
+    src: "check_integrity_red_local.sh.j2"
+    dest: "{{check_mk_dir}}/check_integrity_red_local_{{item}}.sh"
+    mode: 0744
+  with_items: "{{oracle_dbe}}"
+  when: (plugin_bkp_banco == "true")
+  notify: Reload CMK
+  tags:
+    - sensores_install
+
+
+# check_list_backup_sistema_local
+- name: Sensor - check_list_backup_sistema_local
+  template:
+    src: "check_list_backup_sistema_local.sh.j2"
+    dest: "{{check_mk_dir}}/check_list_backup_sistema_local.sh"
+    mode: 0744
+  when: (plugin_winthor == "true")
+  notify: Reload CMK
+  tags:
+    - sensores_install
+
+
+# check_list_backup_sistema_red
+- name: Sensor - check_list_backup_sistema_red
+  template:
+    src: "check_list_backup_red_sistema.sh.j2"
+    dest: "{{check_mk_dir}}/check_list_backup_red_sistema.sh"
+    mode: 0744
+  when: (plugin_winthor == "true")
+  notify: Reload CMK
+  tags:
+    - sensores_install
+
+
+# check_size_backup_sistema
+- name: Sensor - check_size_backup_sistema
+  template:
+    src: "check_size_backup_sistema.sh.j2"
+    dest: "{{check_mk_dir}}/check_size_backup_sistema.sh"
+    mode: 0744
+  when: (plugin_winthor == "true")
+  notify: Reload CMK
+  tags:
+    - sensores_install
+
+
+# check_list_backup_nuvem
+- name: Sensor - check_list_backup_nuvem.sh
+  template:
+    src: "check_list_backup_nuvem.sh.j2"
+    dest: "{{check_mk_dir}}/check_list_backup_nuvem_{{item}}.sh"
+    mode: 0744
+  with_items: "{{oracle_dbe}}"
+  when: (plugin_bkp_nuvem == "true")
+  notify: Reload CMK
+  tags:
+    - sensores_install
+
+
+# check_integrity_nuvem
+- name: Sensor - check_integrity_nuvem
+  template:
+    src: "check_integrity_nuvem.sh.j2"
+    dest: "{{check_mk_dir}}/check_integrity_nuvem_{{item}}.sh"
+    mode: 0744
+  with_items: "{{oracle_dbe}}"
+  when: (plugin_bkp_nuvem == "true")
+  notify: Reload CMK
+  tags:
+    - sensores_install
+
+
+# check_version_agent
+- name: Sensor - check_version_agent
+  vars:
+    db_name: "{{oracle_dbe[0]}}"
+  template:
+    src: "check_version_agent.sh.j2"
+    dest: "{{check_mk_dir}}/check_version_agent.sh"
+    mode: 0744
+  when: (oracle_sns == "true") or (multi_banco == "true")
+  notify: Reload CMK
+  tags:
+    - sensores_install

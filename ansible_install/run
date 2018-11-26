@@ -1,0 +1,46 @@
+#!/bin/bash
+
+source ./etc/conf
+source ./repos/epel
+
+case $1 in
+  --install)
+      if [ "${IF_TRUE}" != "true" ]
+      then
+        epel_install
+        ${YUM_INSTALL} ansible >> "${LOG}" 2>&1
+        ${CP} ${CP_OPT} ./files/ansible.cfg /etc/ansible/ansible.cfg >> "${LOG}" 2>&1
+        
+        # Configuração do Hostname
+        echo $HOSTNAME >> ../inventories/hosts
+
+        # Configuração do Template
+        cd ..
+        cp -rfv ./inventories/host_vars/template.yml \
+        inventories/host_vars/$HOSTNAME.yml >> "${LOG}" 2>&1
+        
+        echo -e "\nAnsible instalado com sucesso\n"
+        exit 0
+      
+      else
+        echo -e "\nAnsible já está instalado\n"
+        exit 0
+      
+      fi
+      ;;
+  --remove)
+      if [ "${IF_TRUE}" == "true" ]
+      then
+        ${YUM_REMOVE} ansible >> "${LOG}" 2>&1
+        echo -e "\nAnsible removido com sucesso\n"
+        exit 0
+
+      else
+        echo -e "\nAnsible não está instalado\n"
+        exit 0
+      fi
+      ;;
+  *)
+        echo -e "\nUtilize [--install | --remove]\n"
+      ;;
+esac

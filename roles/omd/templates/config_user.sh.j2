@@ -1,0 +1,5 @@
+#!/bin/bash
+
+LOG=/tmp/config_user.out
+
+usermod -aG dba,omd {{site_name}} > "${LOG}" 2>&1

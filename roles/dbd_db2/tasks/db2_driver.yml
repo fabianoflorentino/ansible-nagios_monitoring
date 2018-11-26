@@ -1,0 +1,32 @@
+---
+
+- name: DBD IBM DB2 Drive
+  copy:
+    directory_mode: True
+    src: ./driver/DBD-DB2-1.85.tar.gz
+    dest: /tmp/
+  when: (db2_client_driver == "true")
+  tags: db2_client_driver
+
+
+- name: Compilando DBD IBM DB2 Drive
+  shell: |
+
+    # log driver
+    LOG=/tmp/db2_client_driver.out
+
+    export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+    export LD_LIBRARY_PATH=/opt/ibm/db2/{{ db2_version }}/lib64
+
+    tar xzvf /tmp/DBD-DB2-1.85.tar.gz -C /usr/local/
+    cd DBD-DB2-1.85
+
+    perl Makefile.PL > "${LOG}" 2>&1
+    make > "${LOG}" 2>&1
+    make install > "${LOG}" 2>&1
+  args:
+    executable: /bin/bash
+    creates: /tmp/db2_client_driver.out
+  when: (db2_client_driver == "true")
+  tags: db2_client_driver

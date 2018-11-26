@@ -1,0 +1,5 @@
+---
+# tasks file for freetds
+
+- include: freetds_drive.yml
+- include: freetds_conf.yml

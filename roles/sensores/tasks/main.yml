@@ -1,0 +1,7 @@
+---
+# tasks file for sensores
+
+- include: install.yml
+- include: sensores_mssql.yml
+- include: sensores_pssql.yml
+- include: remove.yml

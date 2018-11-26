@@ -1,0 +1,29 @@
+---
+
+- name: Grupos para "{{site_name}}"
+  shell: |
+    LOG=/tmp/config_user.out
+    usermod -aG dba,omd {{site_name}} > "${LOG}" 2>&1
+  args:
+    executable: /bin/bash
+    creates: /tmp/config_user.out
+  tags:
+    - config_user
+
+- name: Serviço OMD
+  service:
+    name: omd
+    state: started
+  tags:
+    - config_user
+
+- name: Configurando Profile OMD
+  template:
+    src: omd_profile.j2
+    dest: /omd/sites/{{site_name}}/.profile
+    owner: "{{site_name}}"
+    group: "{{site_name}}"
+    mode: 0644
+  #with_items: "{{oracle_dbe}}"
+  tags:
+    - config_user

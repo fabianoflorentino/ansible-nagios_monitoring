@@ -1,0 +1,6 @@
+---
+# tasks file for common
+
+- include: repos.yml
+- include: packs.yml
+- include: config_selinux.yml

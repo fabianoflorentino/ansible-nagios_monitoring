@@ -1,0 +1,175 @@
+---
+
+# check_backup_compress
+- name: Remover - check_backup_compress
+  file:
+    path: "{{check_mk_dir}}/check_backup_compress_{{item}}.sh"
+    state: absent
+  with_items: "{{oracle_rem}}"
+  when: (plugin_bkp_banco == "false")
+  notify: Reload CMK
+  tags:
+    - sensores_remove
+
+
+# check_backup_export
+- name: Remover - check_backup_export
+  file:
+    path: "{{check_mk_dir}}/check_backup_export_{{item}}.sh"
+    state: absent
+  with_items: "{{oracle_rem}}"
+  when: (plugin_bkp_banco == "false")
+  notify: Reload CMK
+  tags:
+    - sensores_remove
+
+
+# check_rman_agent_archive
+- name: Remover - check_rman_agent_archive
+  file:
+    path: "{{check_mk_dir}}/check_rman_agent_archive_{{item}}.sh"
+    state: absent
+  with_items: "{{oracle_rem}}"
+  when: (plugin_bkp_banco == "false")
+  notify: Reload CMK
+  tags:
+    - sensores_remove
+
+
+# check_rman_agent_full
+- name: Remover - check_rman_agent_full
+  file:
+    path: "{{check_mk_dir}}/check_rman_agent_full_{{item}}.sh"
+    state: absent
+  with_items: "{{oracle_rem}}"
+  when: (plugin_bkp_banco == "false")
+  notify: Reload CMK
+  tags:
+    - sensores_remove
+
+
+# check_list_backup_local_banco
+- name: Remover - check_list_backup_local_banco
+  file:
+    path: "{{check_mk_dir}}/check_list_backup_local_banco_{{item}}.sh"
+    state: absent
+  with_items: "{{oracle_rem}}"
+  when: (plugin_bkp_banco == "false")
+  notify: Reload CMK
+  tags:
+    - sensores_remove
+
+
+# check_list_backup_red_banco
+- name: Remover - check_list_backup_red_banco
+  file:
+    path: "{{check_mk_dir}}/check_list_backup_red_banco_{{item}}.sh"
+    state: absent
+  with_items: "{{oracle_rem}}"
+  when: (plugin_bkp_banco == "false")
+  notify: Reload CMK
+  tags:
+    - sensores_remove
+
+
+# check_size_backup_banco
+- name: Remover - check_size_backup_banco
+  file:
+    path: "{{check_mk_dir}}/check_size_backup_banco_{{item}}.sh"
+    state: absent
+  with_items: "{{oracle_rem}}"
+  when: (plugin_bkp_banco == "false")
+  notify: Reload CMK
+  tags:
+    - sensores_remove
+
+# check_integrity_red_local
+- name: Remover - check_integrity_red_local
+  file:
+    path: "{{check_mk_dir}}/check_integrity_red_local_{{item}}.sh"
+    state: absent
+  with_items: "{{oracle_rem}}"
+  when: (plugin_bkp_banco == "false")
+  notify: Reload CMK
+  tags:
+    - sensores_remove
+
+
+# check_list_backup_sistema_local
+- name: Remover - check_list_backup_sistema_local
+  file:
+    path: "{{check_mk_dir}}/check_list_backup_sistema_local.sh"
+    state: absent
+  when: (plugin_winthor == "false")
+  notify: Reload CMK
+  tags:
+    - sensores_remove
+
+
+# check_list_backup_sistema_red
+- name: Remover - check_list_backup_sistema_red
+  file:
+    path: "{{check_mk_dir}}/check_list_backup_red_sistema.sh"
+    state: absent
+  when: (plugin_winthor == "false")
+  notify: Reload CMK
+  tags:
+    - sensores_remove
+
+
+# check_size_backup_sistema
+- name: Remover - check_size_backup_sistema
+  file:
+    path: "{{check_mk_dir}}/check_size_backup_sistema.sh"
+    state: absent
+  when: (plugin_winthor == "false")
+  notify: Reload CMK
+  tags:
+    - sensores_remove
+
+
+# check_size_backup_sistema
+- name: Remover - check_size_backup_sistema
+  file:
+    path: "{{check_mk_dir}}/check_size_backup_sistema_{{item}}.sh"
+    state: absent
+  with_items: "{{oracle_rem}}"
+  when: (plugin_winthor == "false")
+  notify: Reload CMK
+  tags:
+    - sensores_remove
+
+
+# check_list_backup_nuvem
+- name: Remover - check_list_backup_nuvem
+  file:
+    path: "{{check_mk_dir}}/check_list_backup_nuvem_{{item}}.sh"
+    state: absent
+  with_items: "{{oracle_rem}}"
+  when: (plugin_bkp_nuvem == "false")
+  notify: Reload CMK
+  tags:
+    - sensores_remove
+
+
+# check_integrity_nuvem
+- name: Remover - check_integrity_nuvem
+  file:
+    path: "{{check_mk_dir}}/check_integrity_nuvem_{{item}}.sh"
+    state: absent
+  with_items: "{{oracle_rem}}"
+  when: (plugin_bkp_nuvem == "false")
+  notify: Reload CMK
+  tags:
+    - sensores_remove
+
+
+# check_version_agent
+- name: Remover - check_version_agent
+  file:
+    path: "{{check_mk_dir}}/check_version_agent.sh"
+    state: absent
+  when: (oracle_sns == "disabled")
+  notify: Reload CMK
+  tags:
+    - sensores_remove

@@ -1,0 +1,3 @@
+---
+# tasks file for dbd_idb2
+- include: db2_driver.yml

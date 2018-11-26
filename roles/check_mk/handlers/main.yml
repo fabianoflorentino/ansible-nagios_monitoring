@@ -1,0 +1,9 @@
+---
+# handlers file for check_mk
+
+- name: Restart Xinetd
+  service:
+    name: xinetd
+    state: restarted
+  tags:
+    - check_mk_agent

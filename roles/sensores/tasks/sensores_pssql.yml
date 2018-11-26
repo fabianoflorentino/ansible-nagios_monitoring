@@ -1,0 +1,26 @@
+---
+
+  # check_postgres
+- name: Sensor - check_postgresql
+  copy:
+    src: check_postgres.pl
+    dest: "/opt/omd/sites/{{site_name}}/local/lib/nagios/plugins/"
+    owner: "{{site_name}}"
+    group: "{{site_name}}"
+    mode: 0744
+  notify: Reload CMK
+  when: (pssql_sns == "true") or (multi_banco == "true")
+  tags: sensores_pssql
+
+
+# list_tablespaces_postgres
+- name: Sensor - list_tablespaces_postgres
+  copy:
+    src: list_tablespaces_postgres.sh
+    dest: "/opt/omd/sites/{{site_name}}/local/lib/nagios/plugins/"
+    owner: "{{site_name}}"
+    group: "{{site_name}}"
+    mode: 0744
+  notify: Reload CMK
+  when: (pssql_sns == "true") or (multi_banco == "true")
+  tags: sensores_pssql

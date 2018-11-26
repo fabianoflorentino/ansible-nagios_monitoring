@@ -1,0 +1,33 @@
+---
+
+# Versao 6
+- name: Instalacao OMD Oracle Linux/CentOS 6
+  yum:
+    name: ./2com_monitor_multibanco/roles/omd/packages/omd-1.30.rhel6.x86_64.rpm
+    state: present
+  when: (ansible_distribution == "OracleLinux" and ansible_distribution_major_version == "6") or
+        (ansible_distribution == "CentOS" and ansible_distribution_major_version == "6") or
+        (ansible_distribution == "RedHat" and ansible_distribution_major_version == "6")
+  tags:
+    - omd6
+
+# Versao 7
+- name: Instalacao OMD Oracle Linux/CentOS 7
+  yum:
+    name: ./2com_monitor_multibanco/roles/omd/packages/omd-1.30.rhel7.x86_64.rpm
+    state: present
+  when: (ansible_distribution == "OracleLinux" and ansible_distribution_major_version == "7") or
+        (ansible_distribution == "CentOS" and ansible_distribution_major_version == "7") or
+        (ansible_distribution == "RedHat" and ansible_distribution_major_version == "7")
+  tags:
+    - omd7
+
+- name: Correcao Hashlib OMD Oracle Linux/CentOS 7
+  copy:
+    src: hashlib.py
+    dest: /omd/versions/1.30/lib/python/hashlib.py
+  when: (ansible_distribution == "OracleLinux" and ansible_distribution_major_version == "7") or
+        (ansible_distribution == "CentOS" and ansible_distribution_major_version == "7") or
+        (ansible_distribution == "RedHat" and ansible_distribution_major_version == "7")
+  tags:
+    - omd7

@@ -1,0 +1,27 @@
+---
+
+- name: 2com - Dashboard
+  copy:
+    src: "{{item}}"
+    dest: "{{url_check_mk_htdocs}}"
+  with_items:
+    - "{{dashboard_itens}}"
+  tags:
+    - 2com_template
+
+- name: 2com - Imagens
+  copy:
+    src: "{{item}}"
+    dest: "{{url_check_mk_images}}"
+  with_items:
+    - "{{images_itens}}"
+  tags:
+    - 2com_template
+
+- name: 2com - Nome do Cliente
+  template:
+    src: builtin.py.j2
+    dest: "{{url_check_mk_dashboard}}/builtin.py"
+  notify: Service OMD
+  tags:
+    - 2com_template

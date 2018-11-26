@@ -1,0 +1,4 @@
+---
+# tasks file for check_mk
+
+- include: check_mk.yml

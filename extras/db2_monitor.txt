@@ -1,0 +1,32 @@
+Install DB2
+
+set no linux 
+
+HOME_DB2=export DB2_HOME=/opt/ibm/db2/V9.5
+
+su - sup
+
+vi .profile
+
+coloque na LD_LIBRARY_PATH=/opt/ibm/db2/V9.5/lib64
+
+copie o driver includes_db2.tar.z para dentro de /usr/local
+
+tar -zxvf includes_db2.tar.z
+
+copie o driver DBD-DB2-1.85.tar.gz para dentro de /usr/local
+
+perl Makefile
+make install
+
+su - db2inst1
+
+vi /etc/services
+
+USER ANTES              db2 catalog tcpip node db2node remote 192.168.0.117 server 50000
+USAR ESSE PRIMEIRO ->   db2 catalog database nunes as nunes at node db2node authentication server 
+
+exit 
+
+su - sup
+check_db2_health --database nunes  --username db2inst1 --password ibmdb2 --mode database-usage

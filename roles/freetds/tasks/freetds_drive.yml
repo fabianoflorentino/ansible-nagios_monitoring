@@ -1,0 +1,42 @@
+---
+
+- name: Freetds
+  copy:
+    directory_mode: True
+    src: ./driver/freetds-stable.tgz
+    dest: /tmp/
+  when: (mssql_sns == "true") or (multi_banco == "true")
+  tags: 
+    - freetds_drive
+
+- name: Compilando Freetds
+  shell: |
+    
+    # log do driver
+    LOG=/tmp/freetds_driver.out
+
+    export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+    # Variáveis de ambiente
+    export LD_LIBRARY_PATH=/usr/local/freetds:/usr/local/freetds/lib
+    export SYBASE=/usr/local/freetds
+
+    tar xzvf /tmp/freetds-stable.tgz -C /usr/local/ 1>> "${LOG}" 2>> "${LOG}" 
+    
+    mv -v /usr/local/freetds-0.91 /usr/local/freetds 1>> "${LOG}" 2>> "${LOG}"
+
+    cd /usr/local/freetds
+    ./configure 1>> "${LOG}" 2>> "${LOG}"
+    make 1>> "${LOG}" 2>> "${LOG}"
+    make install 1>> "${LOG}" 2>> "${LOG}"
+
+    cp -rfv /usr/local/lib /usr/local/freetds/ 1>> "${LOG}" 2>> "${LOG}"
+    cp -rfv /usr/local/lib64 /usr/local/freetds/ 1>> "${LOG}" 2>> "${LOG}"
+    
+    chown -Rv root:root /usr/local/freetds 1>> "${LOG}" 2>> "${LOG}"
+  args:
+    executable: /bin/bash
+    creates: /tmp/freetds_driver.out
+  when: (mssql_sns == "true") or (multi_banco == "true")
+  tags:
+    - freetds_drive

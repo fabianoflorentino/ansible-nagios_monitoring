@@ -1,0 +1,145 @@
+# {{ansible_managed}}
+
+all_hosts = [
+{% for host_main in hostname_main -%}
+'{{host_main}}',
+{% endfor -%}
+]
+
+ipaddresses = {
+{% for info in host_info %}
+{{ info }},
+{% endfor %}
+}
+
+extra_host_conf["alias"] = [
+ ( 'DB Oracle Prod - {{nome_cliente}}', ['{{hostname_main[0]}}'] ),
+]
+
+ignored_services = [
+  ( ALL_HOSTS, [ "OMD","OMD Status"] )
+]
+ignored_checktypes = [
+'postfix_mailq','systemtime','logwatch','ntp.time','cups_queues',
+]
+
+check_parameters += [
+ ( { "levels" : (93.0, 95.0)} , ALL_HOSTS, [ "fs_/","Filesystem /" ] ),
+]
+
+{% if oracle_sns == 'true' %}
+extra_nagios_conf += r"""
+
+define command{
+        command_name    check_listener
+        command_line    /opt/omd/versions/1.30/lib/nagios/plugins/check_tcp -H $HOSTADDRESS$ -p 1521
+        }
+
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[0]}}
+        service_description             Oracle - Listener
+        check_command                   check_listener
+        }
+
+{% for dbname in oracle_dbe %}
+# {{dbname}}
+# check_oracle_users_{{dbname}}
+define command{
+        command_name    check_oracle_users_{{dbname}}
+        command_line    /opt/omd/versions/1.30/lib/nagios/plugins/check_oracle_health --connect {{dbname}} --username omd --password omdspring --mode connected-users --warning 150 --critical 200
+        }
+
+# check_oracle_sessions_{{dbname}}
+define command{
+        command_name    check_oracle_sessions_{{dbname}}
+        command_line    /opt/omd/versions/1.30/lib/nagios/plugins/check_oracle_health --connect {{dbname}} --username omd --password omdspring --mode session-usage
+        }
+
+# check_oracle_tablespace_usage_{{dbname}}
+define command{
+        command_name    check_oracle_tablespace_usage_{{dbname}}
+        command_line    /opt/omd/versions/1.30/lib/nagios/plugins/check_oracle_health --connect {{dbname}} --username omd --password omdspring --warning 90 --critical 95 --mode tablespace-usage
+        }
+
+# check_oracle_deadlocks_{{dbname}}
+define command{
+        command_name    check_oracle_deadlocks_{{dbname}}
+        command_line    /opt/omd/versions/1.30/lib/nagios/plugins/check_oracle_health --connect {{dbname}} --username omd --password omdspring --warning 01 --critical 05 --mode sql --name 'SELECT COUNT(*) FROM (SELECT (SELECT terminal FROM gv$session WHERE sid=a.sid) blocker, a.sid,(SELECT terminal FROM gv$session  WHERE sid=b.sid) blockee,  b.sid FROM gv$lock a, gv$lock b WHERE a.block = 1 AND b.request > 0 AND a.id1 = b.id1 AND a.id2 = b.id2)' --name2 deadlock
+        }
+
+# check_asm_{{dbname}}
+define command{
+        command_name    check_asm_{{dbname}}
+        command_line    /opt/omd/versions/1.30/lib/nagios/plugins/check_oracle_health --connect {{dbname}} --username omd --password omdspring --mode asm-diskgroup-usage
+        }
+
+# check_oracle_flra_{{dbname}}
+define command{
+        command_name    check_oracle_flra_{{dbname}}
+        command_line    /opt/omd/versions/1.30/lib/nagios/plugins/check_oracle_health --connect {{dbname}} --username omd --password omdspring --mode flash-recovery-area-free
+        }
+
+
+# ORACLE SERVICES
+
+# check_oracle_users_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[0]}}
+        service_description             Oracle - Users_{{dbname}}
+        check_command                   check_oracle_users_{{dbname}}
+        notifications_enabled           0
+        }
+
+# check_oracle_sessions_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[0]}}
+        service_description             Oracle - Sessions_{{dbname}}
+        check_command                   check_oracle_sessions_{{dbname}}
+        notifications_enabled           0
+        }
+
+# check_oracle_deadlocks_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[0]}}
+        service_description             Oracle - Deadlock_{{dbname}}
+        check_command                   check_oracle_deadlocks_{{dbname}}
+        }
+
+# check_oracle_tablespace_usage_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[0]}}
+        service_description             Oracle - TableSpace_{{dbname}}
+        check_command                   check_oracle_tablespace_usage_{{dbname}}
+        notifications_enabled           0
+        }
+
+{% if oracle_asm == 'true' -%}
+# check_asm_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[0]}}
+        service_description             Oracle - Asm_{{dbname}}
+        check_command                   check_asm_{{dbname}}
+        notifications_enabled           0
+        }
+{% endif %}
+
+{% if oracle_flash == 'true' -%}
+# check_oracle_flra_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[0]}}
+        service_description             Oracle - Flash_Recovery_Area_{{dbname}}
+        check_command                   check_oracle_flra_{{dbname}}
+        notifications_enabled           0
+        }
+{% endif %}
+
+{% endfor %}
+"""
+{% endif %}

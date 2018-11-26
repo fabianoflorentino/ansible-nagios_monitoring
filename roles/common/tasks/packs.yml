@@ -1,0 +1,30 @@
+---
+
+- name: "Remocao de Pacotes Conflitantes"
+  yum:
+    name: "{{item}}"
+    state: absent
+  loop: "{{rpacks}}"
+  when: (ansible_distribution == "OracleLinux" and ansible_distribution_major_version == "7")
+  tags:
+    - rpacks
+
+- name: "Pacotes Essenciais Oracle Linux and CentOS 6"
+  yum:
+    name: "{{item}}"
+    state: present
+  loop: "{{ipacks6}}"
+  when: (ansible_distribution == "OracleLinux" and ansible_distribution_major_version == "6") or
+        (ansible_distribution == "CentOS" and ansible_distribution_major_version == "6")
+  tags:
+    - ipacks6
+
+- name: "Pacotes Essenciais Oracle Linux and CentOS 7"
+  yum:
+    name: "{{item}}"
+    state: present
+  loop: "{{ipacks7}}"
+  when: (ansible_distribution == "OracleLinux" and ansible_distribution_major_version == "7") or
+        (ansible_distribution == "CentOS" and ansible_distribution_major_version == "7")
+  tags:
+    - ipacks7

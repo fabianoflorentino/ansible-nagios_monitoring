@@ -1,0 +1,6 @@
+# Load MK Livestatus module into Nagios
+# This creates a UNIX socket where status and log
+# data can be retrieved by Multisite, NagVis and
+# other addons.
+broker_module=/omd/sites/{{site_name}}/lib/mk-livestatus/livestatus.o num_client_threads={{num_client_threads}} mk_inventory_path=/omd/sites/{{site_name}}/var/check_mk/inventory pnp_path=/omd/sites/{{site_name}}/var/pnp4nagios/perfdata /omd/sites/{{site_name}}/tmp/run/live
+event_broker_options=-1

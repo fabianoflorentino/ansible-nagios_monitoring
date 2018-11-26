@@ -1,0 +1,8 @@
+---
+
+- name: Configuracao para o Nagios
+  template:
+    src: nagios.cfg.j2
+    dest: "{{nagios_config}}/nagios.cfg"
+  tags:
+    - nagios_config

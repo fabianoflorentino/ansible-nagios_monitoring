@@ -1,0 +1,213 @@
+# {{ ansible_managed }}
+
+all_hosts = [
+{% for host_main in hostname_main -%}
+'{{host_main}}',
+{% endfor -%}
+]
+
+ipaddresses = {
+{% for info in host_info %}
+{{ info }},
+{% endfor %}
+}
+
+extra_host_conf["alias"] = [
+ ( 'DB Oracle Prod - {{ nome_cliente }}', ['{{ hostname_main[0] }}'] ),
+]
+
+ignored_services = [
+  ( ALL_HOSTS, [ "OMD","OMD Status"] )
+]
+ignored_checktypes = [
+'postfix_mailq','systemtime','logwatch','ntp.time','cups_queues',
+]
+
+check_parameters += [
+ ( { "levels" : (93.0, 95.0)} , ALL_HOSTS, [ "fs_/","Filesystem /" ] ),
+]
+
+{% if db2_sns == 'true' %}
+extra_nagios_conf += r"""
+
+###############################################################################
+#                            COMANDOS IBM_DB2                                 #
+###############################################################################
+# check_db2_users
+define command{
+        command_name    check_db2_users
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_db2_health --database nunes --username db2inst1 --password password --mode connected-users --warning 750 --critical 800
+        }
+
+# check_db2_database_use
+define command{
+        command_name    check_db2_database_use
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_db2_health --database nunes --username db2inst1 --password password --mode database-usage
+        }
+
+# check_db2_tablespace_usage
+define command{
+        command_name    check_db2_tablespace_usage
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_db2_health --database nunes --username db2inst1 --password password --mode tablespace-usage -warning 95 critical 98
+        }
+
+# check_db2_tablespace_free
+define command{
+        command_name    check_db2_tablespace_free
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_db2_health --database nunes --username db2inst1 --password password --mode tablespace-free
+        }
+
+# check_db2_bfh
+define command{
+        command_name    check_db2_bfh
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_db2_health --database nunes --username db2inst1 --password password --mode bufferpool-hitratio
+        }
+
+# check_db2_deadlocks
+define command{
+        command_name    check_db2_deadlocks
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_db2_health --database nunes --username db2inst1 --password password --mode deadlocks
+        }
+
+# check_db2_last_backup
+define command{
+        command_name    check_db2_last_backup
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_db2_health --database nunes --username db2inst1 --password password --mode last-backup
+        }
+
+# check_db2_list_tablespace
+define command{
+        command_name    check_db2_list_tablespace
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_db2_health --database nunes --username db2inst1 --password password --mode list-tablespaces
+        }
+
+# check_db2_list_bufferpools
+define command{
+        command_name    check_db2_list_bufferpools
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_db2_health --database nunes --username db2inst1 --password password --mode list-bufferpools
+        }
+
+# check_db2_runstats
+define command{
+        command_name    check_db2_runstats
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_db2_health --database nunes --username db2inst1 --password password --mode stale-table-runstats
+        }
+
+# check_db2_list_databases
+define command{
+        command_name    check_db2_list_databases
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_db2_health --database nunes --username db2inst1 --password password --mode list-databases
+        }
+
+###############################################################################
+#                            SERVICO IBM_DB2                                  #
+###############################################################################
+
+# check_db2_users
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             DB2 - Users
+        check_command                   check_db2_users
+        notifications_enabled           0
+        }
+
+# check_db2_database_use
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             DB2 - Database_Use
+        check_command                   check_db2_database_use
+        check_interval                  60
+        notifications_enabled           0
+        }
+
+# check_db2_tablespace_usage
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             DB2 - TBS_Usage
+        check_command                   check_db2_tablespace_usage
+        check_interval                  120
+        notifications_enabled           0
+        }
+
+# check_db2_tablespace_free
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             DB2 - TBS_Free
+        check_command                   check_db2_tablespace_free
+        check_interval                  60
+        notifications_enabled           0
+        }
+
+# check_db2_bfh
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             DB2 - Buffer_Pool_Hit
+        check_command                   check_db2_bfh
+        check_interval                  60
+        notifications_enabled           0
+        }
+
+# check_db2_deadlocks
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             DB2 - DeadLocks
+        check_command                   check_db2_deadlocks
+        }
+
+# check_db2_last_backup
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             DB2 - Ultimo_Backup
+        check_command                   check_db2_last_backup
+        notifications_enabled           0
+        }
+
+# check_db2_list_tablespace
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             DB2 - TBS_List
+        check_command                   check_db2_list_tablespace
+        check_interval                  60
+        notifications_enabled           0
+        }
+
+# check_db2_list_bufferpools
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             DB2 - List_BufferPool
+        check_command                   check_db2_list_bufferpools
+        check_interval                  60
+        notifications_enabled           0
+        }
+
+# check_db2_runstats
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             DB2 - RunStats_Tables
+        check_command                   check_db2_runstats
+        notifications_enabled           0
+        }
+
+# check_db2_list_databases
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             DB2 - List_Databases
+        check_command                   check_db2_list_databases
+        check_interval                  60
+        notifications_enabled           0
+        }
+
+{% endfor %}
+{% endif %}
+"""

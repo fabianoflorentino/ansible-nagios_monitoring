@@ -1,0 +1,8 @@
+---
+
+- name: Cliente PostgreSQL 9.6
+  yum:
+    name: "postgresql96"
+    state: present
+  when: (pssql_sns == "true")
+  tags: postgresql_repo

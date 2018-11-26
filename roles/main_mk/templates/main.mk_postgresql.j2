@@ -1,0 +1,170 @@
+# {{ ansible_managed }}
+
+all_hosts = [
+{% for host_main in hostname_main -%}
+'{{ host_main }}',
+{% endfor -%}
+]
+
+ipaddresses = {
+{% for info in host_info %}
+{{ info }},
+{% endfor %}
+}
+
+extra_host_conf["alias"] = [
+ ( 'DB PostgreSQL Prod - {{ nome_cliente }}', ['{{ hostname_main[0] }}'] ),
+]
+
+ignored_services = [
+  ( ALL_HOSTS, [ "OMD","OMD Status"] )
+]
+
+ignored_checktypes = [
+'postfix_mailq','systemtime','logwatch','ntp.time','cups_queues',
+]
+
+check_parameters += [
+ ( { "levels" : (93.0, 95.0)} , ALL_HOSTS, [ "fs_/","Filesystem /" ] ),
+]
+
+{% if pssql_sns == 'true' %}
+extra_nagios_conf += r"""
+
+###############################################################################
+#                           COMANDOS POSTGRESQL                               #
+###############################################################################
+{% for dbname in pssql_dbe %}
+# check_postgres_locks_{{ dbname }}
+define command{
+        command_name    check_postgres_locks_{{ dbname }}
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_postgres.pl -H {{ ip_dbe }} -u postgres --dbpass=postgres --action=locks -w 600 -c 4097
+       }
+
+# check_postgres_database_size_{{ dbname }}
+define command{
+        command_name    check_postgres_database_size_{{ dbname }}
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_postgres.pl -H {{ ip_dbe }} -u postgres --dbpass=postgres --action=database_size -w '450000 MB' -c '500000 MB'
+       }
+
+# check_postgres_users_{{ dbname }}
+define command{
+        command_name    check_postgres_users_{{ dbname }}
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_postgres.pl -H {{ ip_dbe }} -u postgres --dbpass=postgres --action=backends
+        }
+
+# check_postgres_autovac_{{ dbname }}
+define command{
+        command_name    check_postgres_autovac_{{ dbname }}
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_postgres.pl -H {{ ip_dbe }} -u postgres --dbpass=postgres --action=autovac_freeze
+        }
+
+# check_postgres_archive_ready_{{ dbname }}
+define command{
+        command_name    check_postgres_archive_ready_{{ dbname }}
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_postgres.pl -H {{ ip_dbe }} -u postgres --dbpass=postgres --action=archive_ready
+        }
+
+# check_postgres_triggers_{{ dbname }}
+define command{
+        command_name    check_postgres_triggers_{{ dbname }}
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_postgres.pl -H {{ ip_dbe }} -u postgres --dbpass=postgres --action=disabled_triggers
+        }
+
+# check_postgres_hitratio_{{ dbname }}
+define command{
+        command_name    check_postgres_hitratio_{{ dbname }}
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_postgres.pl -H {{ ip_dbe }} -u postgres --dbpass=postgres --action=hitratio
+        }
+
+# check_postgres_commitratio_{{ dbname }}
+define command{
+        command_name    check_postgres_commitratio_{{ dbname }}
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/check_postgres.pl -H {{ ip_dbe }} -u postgres --dbpass=postgres --action=commitratio
+        }
+
+# check_postgres_tablespaces_{{ dbname }}
+define command{
+        command_name    check_postgres_tablespaces_{{ dbname }}
+        command_line    /omd/sites/{{ site_name }}/local/lib/nagios/plugins/list_tablespaces_postgres.sh
+        }
+
+###############################################################################
+#                          SERVICO POSTGRESQL                                 #
+###############################################################################
+
+# check_postgres_locks_{{ dbname }}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             Postgres_Locks_{{ dbname }}
+        check_command                   check_postgres_locks_{{ dbname }}
+        }
+
+# check_postgres_database_size_{{ dbname }}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             Postgres - Database_Size_{{ dbname }}
+        check_command                   check_postgres_database_size_{{ dbname }}
+        notifications_enabled           0
+        }
+
+# check_postgres_users_{{ dbname }}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             Postgres - Users_{{ dbname }}
+        check_command                   check_postgres_users_{{ dbname }}
+        notifications_enabled           0
+        }
+
+# check_postgres_archive_ready_{{ dbname }}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             Postgres - Archive_Ready_{{ dbname }}
+        check_command                   check_postgres_archive_ready_{{ dbname }}
+        notifications_enabled           0
+        }
+
+# check_postgres_triggers_{{ dbname }}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             Postgres - Triggers_{{ dbname }}
+        check_command                   check_postgres_triggers_{{ dbname }}
+        notifications_enabled           0
+        }
+
+# check_postgres_hitratio_{{ dbname }}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             Postgres - HitRatio_{{ dbname }}
+        check_command                   check_postgres_hitratio_{{ dbname }}
+        notifications_enabled           0
+        }
+
+# check_postgres_commitratio_{{ dbname }}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             Postgres - CommitRatio_{{ dbname }}
+        check_command                   check_postgres_commitratio_{{ dbname }}
+        notifications_enabled           0
+        }
+
+# check_postgres_tablespaces_{{ dbname }}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{ hostname_main[0] }}
+        service_description             Postgres - Tablespaces_{{ dbname }}
+        check_command                   check_postgres_tablespaces_{{ dbname }}
+        check_interval                  60
+        notifications_enabled           0
+        }
+
+{% endfor %}
+{% endif %}
+"""

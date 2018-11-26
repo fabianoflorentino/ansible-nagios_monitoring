@@ -1,0 +1,41 @@
+---
+# Oracle
+- name: main.mk para  Oracle
+  template:
+    src: main.mk_oracle.j2
+    dest: "/omd/sites/{{site_name}}/etc/check_mk/main.mk"
+  notify: Reload CMK
+  when: oracle_sns == "true"
+  tags:
+    - main_mk
+
+
+# SQL Server
+- name: main.mk para SQL Server
+  template:
+    src: main.mk_mssql.j2
+    dest: "/omd/sites/{{site_name}}/etc/check_mk/main.mk"
+  notify: Reload CMK
+  when: mssql_sns == "true"
+  tags:
+    - main_mk
+
+
+# PostgreSQL
+- name: main.mk para PostgreSQL
+  template:
+    src: main.mk_postgresql.j2
+    dest: "/omd/sites/{{site_name}}/etc/check_mk/main.mk"
+  notify: Reload CMK
+  when: pssql_sns == "true"
+  tags:
+    - main_mk
+
+
+# Multi Banco
+- name: main.mk para Multi Banco
+  template:
+    src: main.mk_multi.j2
+    dest: "/omd/sites/{{site_name}}/etc/check_mk/main.mk"
+  notify: Reload CMK
+  when: multi_banco == "true"

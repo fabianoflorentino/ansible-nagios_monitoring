@@ -1,0 +1,29 @@
+#!/bin/bash
+BASE={{item}}
+CHECK_DIR="/db/backup/checklist"
+{% if type_plugin == 'true' %}
+LIST_LOG=`ls ${CHECK_DIR}/check_integrity_backup_red*${BASE}* -trl|tail -1 |awk '{print $9}'`
+{% else %}
+LIST_LOG=`ls ${CHECK_DIR}/check_integrity_backup_red* -trl|tail -1 |awk '{print $9}'`
+{% endif %}
+{% raw %}
+CHECK_LOG=`cat $LIST_LOG`
+TRAT_CHECK_LOG=$(echo $CHECK_LOG | awk '{print $2}')
+
+if [ -z $TRAT_CHECK_LOG ]
+        then
+        echo "2 Check_Integrity_Redundancia_${BASE} - CHECAGEM DE INTEGRIDADE: ARQUIVO VAZIO "
+        exit 2
+
+        elif [ $TRAT_CHECK_LOG == 'OK' ]
+        then
+        echo "0 Check_Integrity_Redundancia_${BASE} - CHECAGEM DE INTEGRIDADE: `echo $CHECK_LOG`"
+        exit 0
+
+        else
+        echo "2 Check_Integrity_Redundancia_${BASE} - CHECAGEM DE INTEGRIDADE: `echo $CHECK_LOG` "
+        exit 2
+fi
+
+exit
+{% endraw %}

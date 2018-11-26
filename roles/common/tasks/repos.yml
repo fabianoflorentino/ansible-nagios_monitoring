@@ -1,0 +1,49 @@
+---
+
+# Oracle Linux
+- name: Repositorio Yum Public Oracle Linux 7
+  copy:
+    src: public-yum-ol7.repo
+    dest: "{{yum_public7_file}}"
+  when: (ansible_distribution == "OracleLinux" and ansible_distribution_major_version == "7")
+  tags:
+    - common_repos
+
+- name: Repositorio Yum Public Oracle Linux 6
+  copy:
+    src: public-yum-ol6.repo
+    dest: "{{yum_public6_file}}"
+  when: (ansible_distribution == "OracleLinux" and ansible_distribution_major_version == "6")
+  tags:
+    - common_repos
+
+- name: Repositorio EPEL Oracle Linux 7
+  yum:
+    name: "{{epel7_url}}"
+    state: present
+  when: (ansible_distribution == "OracleLinux" and ansible_distribution_major_version == "7")
+  tags:
+    - common_repos
+
+- name: Repositorio EPEL Oracle Linux 6
+  yum:
+    name: "{{epel6_url}}"
+    state: present
+  when: (ansible_distribution == "OracleLinux" and ansible_distribution_major_version == "6")
+  tags:
+    - common_repos
+
+- name: Repositorio MariaDB Oracle Linux 7
+  copy:
+    src: mariadb.repo
+    dest: "{{mariadb_file}}"
+  when: (ansible_distribution == "OracleLinux" and ansible_distribution_major_version == "7")
+  tags:
+    - common_repos
+
+# CentOS
+- name: Repositorio EPEL CentOS
+  yum:
+    name: epel-release
+    state: present
+  when: (ansible_distribution == "CentOS")

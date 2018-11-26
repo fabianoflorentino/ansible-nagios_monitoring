@@ -1,0 +1,42 @@
+---
+
+- name: Pacote libselinux-python
+  yum:
+    name: libselinux-python
+    state: present
+  tags:
+    - libselinux
+
+- name: Pacote Xinetd
+  yum:
+    name: xinetd
+    state: present
+  tags:
+    - check_mk_agent
+
+- name: Configurando Livestatus
+  template:
+    src: livestatus.j2
+    dest: "/etc/xinetd.d/livestatus"
+  notify: Restart Xinetd
+  tags:
+    - check_mk_agent
+
+- name: Instalacao Check_MK Agent
+  yum:
+    name: ./2com_monitor_multibanco/roles/check_mk/packages/check-mk-agent-1.2.6p12-1.noarch.rpm
+    state: present
+  when: (ansible_distribution == "CentOS") or
+        (ansible_distribution == "OracleLinux") or
+        (ansible_distribution == "Redhat")
+  notify: Restart Xinetd
+  tags:
+    - check_mk_agent
+
+- name: Serviço Xinetd
+  service:
+    name: xinetd
+    state: started
+    enabled: yes
+  tags:
+    - check_mk_agent

@@ -1,0 +1,7 @@
+---
+
+- name: Desabilitando SELinux
+  selinux:
+    state: disabled
+  tags:
+    - selinux

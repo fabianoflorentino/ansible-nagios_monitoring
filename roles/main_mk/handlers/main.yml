@@ -1,0 +1,6 @@
+---
+# handlers file for main_mk
+- name: Reload CMK
+  command: "runuser -l {{site_name}} -c \"cmk -II && cmk -R\""
+  tags:
+    - config_sensors

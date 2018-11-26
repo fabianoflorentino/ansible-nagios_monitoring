@@ -1,0 +1,19 @@
+---
+
+- name: Configurando Site de Monitoramento
+  shell: |
+    SITE_VERIFY=$(cat /etc/passwd |egrep "^{{site_name}}" |cut -d":" -f1)
+    SITE_VERIFY_2=$(cat /etc/group |egrep "^{{site_name}}" |cut -d":" -f1)
+    LOG=/tmp/create_site.out
+
+    if [ -z ${SITE_VERIFY} ] && [ -z ${SITE_VERIFY_2} ]
+    then
+        omd create {{site_name}} > "${LOG}" 2>&1
+    else
+        echo -e "Site ja esta criado" > "${LOG}" 2>&1
+    fi
+  args:
+    creates: /tmp/create_site.out
+  notify: Service OMD
+  tags:
+    - site_monitor

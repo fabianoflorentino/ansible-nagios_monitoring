@@ -1,0 +1,37 @@
+---
+
+- name: DBD Oracle Drive
+  copy:
+    directory_mode: True
+    src: ./driver/oracle_driver.tgz
+    dest: /tmp/
+  when: (oracle_client_drv == "true")
+  tags:
+    - oracle_driver
+
+- name: Compilando DBD Oracle Drive
+  shell: |
+
+    # log do driver
+    LOG=/tmp/oracle_driver.out
+    
+    export PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+    # Variáveis de ambiente Oracle
+    export ORACLE_HOME={{oracle_client_bse}}/{{oracle_client_ver}}/{{oracle_client_app}}
+    export ORACLE_SID={{item}}
+    export LD_LIBRARY_PATH=$ORACLE_HOME/lib:/lib:/usr/lib
+
+    tar xzvf /tmp/oracle_driver.tgz -C /usr/local/
+    cd /usr/local/oracle_driver
+
+    perl Makefile.PL > "${LOG}" 2>&1
+    make > "${LOG}" 2>&1
+    make install > "${LOG}" 2>&1
+  args:
+    executable: /bin/bash
+    creates: /tmp/oracle_driver.out
+  with_items: "{{oracle_dbe}}"
+  when: (oracle_client_drv == "true")
+  tags:
+    - oracle_driver

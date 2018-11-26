@@ -1,0 +1,19 @@
+#!/bin/bash
+
+source ./etc/conf
+
+epel_install () {
+
+  if [ "${OS_VERSION}" == "6" ]
+  then
+    ${YUM_INSTALL} "${EPEL_URL}/${EPEL_RPM}" >> "${LOG}" 2>&1
+  
+  elif [ "${OS_VERSION}" == "7" ]
+  then
+  
+    ${YUM_INSTALL} "${EPEL_URL}/${EPEL_RPM}" >> "${LOG}" 2>&1
+  else
+  
+    echo -e "\nSistema operacional não suportado!\n" >> "${LOG}" 2>&1
+  fi
+}

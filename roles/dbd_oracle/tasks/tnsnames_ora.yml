@@ -1,0 +1,15 @@
+---
+
+- name: Configurando tnsnames.ora
+  template:
+    src: tnsnames.ora.j2
+    dest: "{{oracle_client_bse}}/{{oracle_client_ver}}/{{oracle_client_app}}/network/admin/tnsnames.ora"
+    backup: yes
+    owner: oracle
+    group: dba
+    mode: 0644
+  notify: Reload CMK
+  with_items: "{{oracle_dbe}}"
+  when: ("{{oracle_client_drv}}" == "true")
+  tags:
+    - tnsnames

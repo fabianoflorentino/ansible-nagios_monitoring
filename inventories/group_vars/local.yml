@@ -1,0 +1,66 @@
+---
+
+# MySQL
+rpacks:
+  - "mysql-community-common"
+
+# Yum Public
+yum_public7_file: "/etc/yum.repos.d/public-yum-ol7.repo"
+yum_public6_file: "/etc/yum.repos.d/public-yum-ol6.repo"
+
+# EPEL
+epel7_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+epel6_url: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-6.noarch.rpm"
+
+# MariaDB
+mariadb_file: "/etc/yum.repos.d/mariadb.repo"
+
+# Pacotes Essenciais
+ipacks6:
+  - libdbi
+  - gcc
+  - gcc-c++
+  - libselinux-python
+  - perl-ExtUtils-MakeMaker
+  - perl-CPAN
+  - xinetd
+  - sshpass
+
+ipacks7:
+  - wget
+  - libaio
+  - bc
+  - flex
+  - gcc
+  - gcc-c++
+  - unzip
+  - bzip2
+  - xinetd
+  - perl-ExtUtils-MakeMaker
+  - perl-CPAN
+  - sshpass
+
+# Configuração Check_MK
+check_mk_dir: "/usr/lib/check_mk_agent/plugins"
+
+# Configuração Nagios
+num_client_threads: 100
+nagios_config: "/opt/omd/sites/{{site_name}}/etc/mk-livestatus"
+
+# Customização 2com
+url_check_mk_htdocs: "/opt/omd/versions/1.30/share/check_mk/web/htdocs/"
+url_check_mk_dashboard: "/opt/omd/versions/1.30/share/check_mk/web/plugins/dashboard"
+url_check_mk_images: "/opt/omd/versions/1.30/share/check_mk/web/htdocs/images/"
+
+dashboard_itens:
+  - dashboard.py
+  - dashboard.css
+  - sidebar.py
+  - sidebar.css
+
+images_itens:
+  - contentframe_background.jpg
+  - favicon.ico
+  - mk_logo_small.gif
+  - sidebar_background.jpg
+  - sidebar_top.png

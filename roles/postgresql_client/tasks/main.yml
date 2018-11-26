@@ -1,0 +1,5 @@
+---
+# tasks file for postgresql_client
+
+- include: repos.yml
+- include: packs.yml

@@ -1,0 +1,5 @@
+---
+# tasks file for dbd_oracle
+
+- include: oracle_driver.yml
+#- include: tnsnames_ora.yml

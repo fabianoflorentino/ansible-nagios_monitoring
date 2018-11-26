@@ -1,0 +1,7 @@
+---
+# handlers file for dbd_oracle
+
+- name: Reload CMK
+  command: "runuser -l {{site_name}} -c \"cmk -IIv && cmk -Rv\""
+  tags:
+    - sensores

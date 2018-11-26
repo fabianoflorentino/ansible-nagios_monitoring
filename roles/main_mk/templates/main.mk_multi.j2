@@ -1,0 +1,256 @@
+# {{ansible_managed}}
+
+all_hosts = [
+{% for host_main in hostname_main -%}
+'{{host_main}}',
+{% endfor -%}
+]
+
+ipaddresses = {
+{% for info in host_info %}
+{{ info }},
+{% endfor %}
+}
+
+extra_host_conf["alias"] = [
+ ( 'DB Oracle Prod - {{nome_cliente}}', ['{{hostname_main[0]}}'] ),
+ ( 'DB SQL Server Prod - {{nome_cliente}}', ['{{hostname_main[1]}}'] ),
+]
+
+ignored_services = [
+  ( ALL_HOSTS, [ "OMD","OMD Status"] )
+]
+ignored_checktypes = [
+'postfix_mailq','systemtime','logwatch','ntp.time','cups_queues',
+]
+
+check_parameters += [
+ ( { "levels" : (93.0, 95.0)} , ALL_HOSTS, [ "fs_/","Filesystem /" ] ),
+]
+
+{% if multi_banco == 'true' -%}
+extra_nagios_conf += r"""
+#################################################################################
+#                              ORACLE COMMANDS                                  #
+#################################################################################
+define command{
+        command_name    check_listener
+        command_line    /opt/omd/versions/1.30/lib/nagios/plugins/check_tcp -H $HOSTADDRESS$ -p 1521
+        }
+
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[0]}}
+        service_description             Oracle - Listener
+        check_command                   check_listener
+        }
+
+{% for dbname in oracle_dbe %}
+# {{dbname}}
+# check_oracle_users_{{dbname}}
+define command{
+        command_name    check_oracle_users_{{dbname}}
+        command_line    /opt/omd/versions/1.30/lib/nagios/plugins/check_oracle_health --connect {{dbname}} --username omd --password omdspring --mode connected-users --warning 150 --critical 200
+        }
+
+# check_oracle_sessions_{{dbname}}
+define command{
+        command_name    check_oracle_sessions_{{dbname}}
+        command_line    /opt/omd/versions/1.30/lib/nagios/plugins/check_oracle_health --connect {{dbname}} --username omd --password omdspring --mode session-usage
+        }
+
+# check_oracle_tablespace_usage_{{dbname}}
+define command{
+        command_name    check_oracle_tablespace_usage_{{dbname}}
+        command_line    /opt/omd/versions/1.30/lib/nagios/plugins/check_oracle_health --connect {{dbname}} --username omd --password omdspring --warning 90 --critical 95 --mode tablespace-usage
+        }
+
+# check_oracle_deadlocks_{{dbname}}
+define command{
+        command_name    check_oracle_deadlocks_{{dbname}}
+        command_line    /opt/omd/versions/1.30/lib/nagios/plugins/check_oracle_health --connect {{dbname}} --username omd --password omdspring --warning 01 --critical 05 --mode sql --name 'SELECT COUNT(*) FROM (SELECT (SELECT terminal FROM gv$session WHERE sid=a.sid) blocker, a.sid,(SELECT terminal FROM gv$session  WHERE sid=b.sid) blockee,  b.sid FROM gv$lock a, gv$lock b WHERE a.block = 1 AND b.request > 0 AND a.id1 = b.id1 AND a.id2 = b.id2)' --name2 deadlock
+        }
+
+# check_asm_{{dbname}}
+define command{
+        command_name    check_asm_{{dbname}}
+        command_line    /opt/omd/versions/1.30/lib/nagios/plugins/check_oracle_health --connect {{dbname}} --username omd --password omdspring --mode asm-diskgroup-usage
+        }
+
+# check_oracle_flra_{{dbname}}
+define command{
+        command_name    check_oracle_flra_{{dbname}}
+        command_line    /opt/omd/versions/1.30/lib/nagios/plugins/check_oracle_health --connect {{dbname}} --username omd --password omdspring --mode flash-recovery-area-free
+        }
+
+#################################################################################
+#                               ORACLE SERVICE                                  #
+#################################################################################
+# check_oracle_users_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[0]}}
+        service_description             Oracle - Users_{{dbname}}
+        check_command                   check_oracle_users_{{dbname}}
+        notifications_enabled           0
+        }
+
+# check_oracle_sessions_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[0]}}
+        service_description             Oracle - Sessions_{{dbname}}
+        check_command                   check_oracle_sessions_{{dbname}}
+        notifications_enabled           0
+        }
+
+# check_oracle_deadlocks_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[0]}}
+        service_description             Oracle - Deadlock_{{dbname}}
+        check_command                   check_oracle_deadlocks_{{dbname}}
+        }
+
+# check_oracle_tablespace_usage_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[0]}}
+        service_description             Oracle - TableSpace_{{dbname}}
+        check_command                   check_oracle_tablespace_usage_{{dbname}}
+        notifications_enabled           0
+        }
+
+{% if oracle_asm == 'true' -%}
+# check_asm_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[0]}}
+        service_description             Oracle - Asm_{{dbname}}
+        check_command                   check_asm_{{dbname}}
+        notifications_enabled           0
+        }
+{% endif %}
+
+{% if oracle_flash == 'true' -%}
+# check_oracle_flra_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[0]}}
+        service_description             Oracle - Flash_Recovery_Area_{{dbname}}
+        check_command                   check_oracle_flra_{{dbname}}
+        notifications_enabled           0
+        }
+{% endif %}
+{% endfor %}
+#################################################################################
+#                               MSSQL COMMANDS                                  #
+#################################################################################
+{% for dbname in mssql_dbe %}
+# check_mssql_free_space_{{dbname}}
+define command{
+        command_name    check_mssql_free_space_master_{{dbname}}
+        command_line    /omd/sites/{{site_name}}/local/lib/nagios/plugins/check_mssql_health --server mssql --username 2com --password summer098* --mode database-free --name MASTER --warning 700: --critical 200: --units MB
+        }
+
+# check_mssql_cpu_{{dbname}}
+define command{
+        command_name    check_mssql_cpu_{{dbname}}
+        command_line    /omd/sites/{{site_name}}/local/lib/nagios/plugins/check_mssql_health --server mssql --username 2com --password summer098* --mode cpu-busy
+        }
+
+# check_mssql_log_grow_{{dbname}}
+define command{
+        command_name    check_mssql_log_grow_{{dbname}}
+        command_line    /omd/sites/{{site_name}}/local/lib/nagios/plugins/check_mssql_health --server mssql --username 2com --password summer098* --mode database-file-auto-growths
+        }
+
+# check_mssql_log_shrinks_{{dbname}}
+define command{
+        command_name    check_mssql_log_shrinks_{{dbname}}
+        command_line    /omd/sites/{{site_name}}/local/lib/nagios/plugins/check_mssql_health --server mssql --username 2com --password summer098* --mode database-logfile-auto-shrinks
+        }
+
+# check_mssql_locks_deadlocks_{{dbname}}
+define command{
+        command_name    check_mssql_locks_deadlocks_{{dbname}}
+        command_line    /omd/sites/{{site_name}}/local/lib/nagios/plugins/check_mssql_health --server mssql --username 2com --password summer098* --mode locks-deadlocks
+        }
+
+# check_mssql_users_{{dbname}}
+define command{
+        command_name    check_mssql_users_{{dbname}}
+        command_line    /omd/sites/{{site_name}}/local/lib/nagios/plugins/check_mssql_health --server mssql --username 2com --password summer098* --mode connected-users  -warning 450 -critical 500
+        }
+
+# check_mssql_mem_{{dbname}}
+define command{
+        command_name    check_mssql_mem_{{dbname}}
+        command_line    /omd/sites/{{site_name}}/local/lib/nagios/plugins/check_mssql_health --server mssql --username 2com --password summer098* --mode mem-pool-data-buffer-hit-ratio
+        }
+
+#################################################################################
+#                                MSSQL SERVICE                                  #
+#################################################################################
+# check_mssql_free_space_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[1]}}
+        service_description             Mssql - Free_Space_Master_{{dbname}}
+        check_command                   check_mssql_free_space_master_{{dbname}}
+        notifications_enabled           0
+        }
+
+# check_mssql_cpu_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[1]}}
+        service_description             Mssql - Cpu_{{dbname}}
+        check_command                   check_mssql_cpu_{{dbname}}
+        }
+
+# check_mssql_log_grow_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[1]}}
+        service_description             Mssql - Log_Grow_{{dbname}}
+        check_command                   check_mssql_log_grow_{{dbname}}
+        notifications_enabled           0
+        }
+
+# check_mssql_log_shrinks_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[1]}}
+        service_description             Mssql - Log_Shrinks_{{dbname}}
+        check_command                   check_mssql_log_shrinks_{{dbname}}
+        notifications_enabled           0
+        }
+
+# check_mssql_locks_deadlocks_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[1]}}
+        service_description             Mssql - Locks_Deadlocks_{{dbname}}
+        check_command                   check_mssql_locks_deadlocks_{{dbname}}
+        }
+
+# check_mssql_users_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[1]}}
+        service_description             Mssql - Users_{{dbname}}
+        check_command                   check_mssql_users_{{dbname}}
+        }
+
+# check_mssql_mem_{{dbname}}
+define service{
+        use                             check_mk_default         ; Name of service template to use
+        host_name                       {{hostname_main[1]}}
+        service_description             Mssql - Memory_{{dbname}}
+        check_command                   check_mssql_mem_{{dbname}}
+        notifications_enabled           0
+        }
+{% endfor %}
+"""
+{% endif %}

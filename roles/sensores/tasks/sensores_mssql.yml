@@ -1,0 +1,25 @@
+---
+
+- name: Sensor - check_mssql_health
+  copy:
+    src: check_mssql_health
+    dest: "/opt/omd/sites/{{site_name}}/local/lib/nagios/plugins/"
+    owner: "{{site_name}}"
+    group: "{{site_name}}"
+    mode: 0744
+  notify: Reload CMK
+  when: (mssql_sns == "true") or (multi_banco == "true")
+  tags: sensores_mssql
+
+
+- name: Sensor - mssql_list_tablespace
+  template:
+    src: mssql_list_tablespace.j2
+    dest: "/opt/omd/sites/{{site_name}}/local/lib/nagios/plugins/list_tablespace_{{item}}"
+    owner: "{{site_name}}"
+    group: "{{site_name}}"
+    mode: 0744
+  notify: Reload CMK
+  when: (mssql_sns == "true") or (multi_banco == "true")
+  with_items: "{{mssql_dbe}}"
+  tags: sensores_mssql

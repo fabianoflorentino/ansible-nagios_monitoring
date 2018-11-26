@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+
+BASE={{ item }}
+{% raw %}
+use DBI;
+
+$dsn = 'DBI:Sybase:server=mssql';
+
+my $dbh = DBI->connect($dsn, "2com", 'summer098*');
+die "unable to connect to server $DBI::errstr" unless $dbh;
+
+$dbh->do("use ${BASE}");
+
+$query = "SELECT (case WHEN f.type = 0 then 'DATAFILE' ELSE 'LOGFILE' END) as Tipo_Datafile, name AS DataFiles,((size * 8)/1024) AS FileSize
+FROM master.sys.master_files f WHERE state = 0 and database_id IN ('8')
+AND type_desc IN ('LOG', 'ROWS') ORDER BY DataFiles";
+$sth = $dbh->prepare ($query) or die "prepare failed\n";
+$sth->execute( ) or die "unable to execute query $query   error $DBI::errstr";
+
+$rows = $sth->rows ;
+#print "$row rows returned by query\n";
+while ( @first = $sth->fetchrow_array ) {
+   foreach $field (@first) {
+      print "$field  ";
+   }
+}
+{% endraw %}

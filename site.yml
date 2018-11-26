@@ -1,0 +1,19 @@
+---
+# Servidores de Monitoramento
+- name: Monitoramento 2com
+  hosts: local
+
+  remote_user: 2com
+  become: yes
+
+  roles:
+    - {role: common, tags: common}
+    - {role: check_mk, tags: check_mk}
+    - {role: omd, tags: omd,config_user}
+    - {role: dbd_oracle, tags: dbd_oracle}
+    - {role: main_mk, tags: main_mk}
+    - {role: sensores, tags: sensores,sensores_install,sensores_mssql,sensores_remove}
+    - {role: freetds, tags: freetds, freetds_drive}
+    - {role: dbd_sybase, tags: dbd_sybase}
+    - {role: dbd_db2, tags: dbd_db2}
+    - {role: postgresql_client, tags: postgresql_client}
